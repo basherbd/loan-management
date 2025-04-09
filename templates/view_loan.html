@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="loan-header">
+        <h2>Loan #{{ loan.id }}</h2>
+        <p>Customer: {{ loan.customer.name }}</p>
+    </div>
+
+    <div class="loan-details">
+        <div class="detail-card">
+            <h3>Loan Details</h3>
+            <p><strong>Amount:</strong> ${{ "%.2f"|format(loan.amount) }}</p>
+            <p><strong>Interest Rate:</strong> {{ "%.2f"|format(loan.interest_rate) }}%</p>
+            <p><strong>Term:</strong> {{ loan.term }} months</p>
+            <p><strong>Start Date:</strong> {{ loan.start_date.strftime('%Y-%m-%d') }}</p>
+            <p><strong>Status:</strong> {{ loan.status }}</p>
+            <p><strong>Purpose:</strong> {{ loan.purpose or 'N/A' }}</p>
+        </div>
+
+        <div class="detail-card">
+            <h3>Payment Information</h3>
+            <p><strong>Monthly Payment:</strong> ${{ "%.2f"|format(loan.monthly_payment()) }}</p>
+            <p><strong>Remaining Balance:</strong> ${{ "%.2f"|format(loan.remaining_balance()) }}</p>
+        </div>
+    </div>
+
+    <div class="payment-section">
+        <h3>Record Payment</h3>
+        <form method="POST" action="{{ url_for('add_payment', loan_id=loan.id) }}" class="payment-form">
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" step="0.01" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_date">Date</label>
+                <input type="date" id="payment_date" name="payment_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_method">Method</label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="Cash">Cash</option>
+                    <option value="Check">Check</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Credit Card">Credit Card</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" name="notes"></textarea>
+            </div>
+
+            <button type="submit" class="btn">Record Payment</button>
+        </form>
+    </div>
+
+    <div class="payment-history">
+        <h3>Payment History</h3>
+        {% if payments %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td>{{ payment.payment_date.strftime('%Y-%m-%d') }}</td>
+                    <td>${{ "%.2f"|format(payment.amount) }}</td>
+                    <td>{{ payment.payment_method }}</td>
+                    <td>{{ payment.notes or '' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No payments recorded yet.</p>
+        {% endif %}
+    </div>
+{% endblock %}

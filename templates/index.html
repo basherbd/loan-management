@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Active Loans</h2>
+
+    <form action="{{ url_for('search') }}" method="get" class="search-form">
+        <input type="text" name="query" placeholder="Search by name or loan ID">
+        <button type="submit">Search</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Loan ID</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Interest Rate</th>
+                <th>Term</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loan in loans %}
+            <tr>
+                <td>{{ loan.id }}</td>
+                <td>{{ loan.customer.name }}</td>
+                <td>${{ "%.2f"|format(loan.amount) }}</td>
+                <td>{{ "%.2f"|format(loan.interest_rate) }}%</td>
+                <td>{{ loan.term }} months</td>
+                <td>{{ loan.status }}</td>
+                <td>
+                    <a href="{{ url_for('view_loan', loan_id=loan.id) }}" class="btn">View</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7">No loans found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('add_loan') }}" class="btn">Add New Loan</a>
+{% endblock %}
